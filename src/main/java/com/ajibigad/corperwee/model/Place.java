@@ -36,7 +36,6 @@ public class Place {
 
     @ManyToOne
     @JoinColumn(name = "category")
-    //@JsonIgnore
     private Category category;
 
     @ManyToMany()

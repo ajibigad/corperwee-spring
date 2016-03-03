@@ -3,7 +3,6 @@ package com.ajibigad.corperwee.controller;
 import com.ajibigad.corperwee.exceptions.UnAuthorizedException;
 import com.ajibigad.corperwee.exceptions.UserExistAlready;
 import com.ajibigad.corperwee.exceptions.UserNotFoundException;
-import com.ajibigad.corperwee.model.Place;
 import com.ajibigad.corperwee.model.User;
 import com.ajibigad.corperwee.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import com.ajibigad.corperwee.exceptions.Error;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.websocket.server.PathParam;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +42,6 @@ public class UserController {
         }
         else{
             User user = repository.save(newUser);
-            newUser.setPassword("");
             return user;
         }
     }
@@ -52,6 +49,7 @@ public class UserController {
     @RequestMapping(method = RequestMethod.PUT)
     public User updateUser(@RequestBody User user, Principal principal){
         if(principal.getName().equals(user.getUsername())){
+            user.setPassword(repository.findByUsername(principal.getName()).getPassword());
             return repository.save(user);
         }
         else{

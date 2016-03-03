@@ -4,8 +4,10 @@ import com.ajibigad.corperwee.exceptions.*;
 import com.ajibigad.corperwee.exceptions.Error;
 import com.ajibigad.corperwee.model.Place;
 import com.ajibigad.corperwee.model.User;
+import com.ajibigad.corperwee.model.apiModels.SearchParams;
 import com.ajibigad.corperwee.repository.PlaceRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
+import com.ajibigad.corperwee.utils.SomeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,11 +31,6 @@ public class PlaceController {
 
     @Autowired
     UserRepository userRepository;
-
-    @RequestMapping(method = RequestMethod.GET, params = {"state", "lga", "town"})
-    public List<Place> getPlaces(@RequestParam @NotNull String state, @RequestParam String lga, @RequestParam String town){
-        return repository.findByStateAndLgaAndTown(state, lga, town);
-    }
 
     @RequestMapping(method = RequestMethod.POST)
     public Place addPlace(@RequestBody Place place, Principal principal){;
@@ -51,9 +49,31 @@ public class PlaceController {
         }
     }
 
-    @RequestMapping("/paged")
-    public Page<Place> getPagedPlaces(){
-        return repository.findAll(new PageRequest(0, 10, Sort.Direction.DESC, "name"));
+    /*
+    * ideally i should use a get here but mehn!!!!
+    * I love sending jsons, query params for GET request is boring!!!
+    * Imagine me doing ?state=lagos&lga=epe&town=eko
+    * Dry abegi*/
+    @RequestMapping(value = "town/paged", method = RequestMethod.POST)
+    public Page<Place> getPagedPlacesByTown(@RequestBody SearchParams searchParams){
+        List<Object> searchParamsAttrs = new ArrayList<Object>()
+        {{
+                add(searchParams.getCategory());
+                add(searchParams.getState());
+                add(searchParams.getLga());
+                add(searchParams.getTown());
+            }};
+
+        if(SomeUtils.isAllNotNull(searchParamsAttrs)){
+            PageRequest pageRequest = new PageRequest(searchParams.getPageNumber(),
+                    searchParams.getPageSize(),
+                    Sort.Direction.valueOf(searchParams.getSortingOrder()),
+                    searchParams.getSortingProperty());
+            return repository.findByCategoryAndStateAndLgaAndTown(searchParams.getCategory(), searchParams.getState(), searchParams.getLga(), searchParams.getTown(), pageRequest);
+        }
+        else{
+            throw new IllegalArgumentException("BAD ARGUMENT .. One of either state, lga, or town is missing from search param");
+        }
     }
 
     @ExceptionHandler(PlaceNotFound.class)
