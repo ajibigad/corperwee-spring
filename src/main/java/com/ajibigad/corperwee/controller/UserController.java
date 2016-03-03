@@ -31,7 +31,6 @@ public class UserController {
     public List<User> getAllUsers(){
         List<User> users = new ArrayList<User>();
         for (User user : repository.findAll()){
-            System.out.println(user.getUsername());
             users.add(user);
         }
         return users;
@@ -41,11 +40,9 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     public User addUser(@RequestBody User newUser){
         if(repository.findByUsername(newUser.getUsername())!=null){
-            System.out.println("username already exist");
             throw new UserExistAlready(newUser.getUsername());
         }
         else{
-            System.out.println("one new dude");
             User user = repository.save(newUser);
             newUser.setPassword("");
             return user;
@@ -55,7 +52,6 @@ public class UserController {
     @RequestMapping(method = RequestMethod.PUT)
     public User updateUser(@RequestBody User user, Principal principal){
         if(principal.getName().equals(user.getUsername())){
-            System.out.println(principal.getName() + user.getUsername());
             return repository.save(user);
         }
         else{
