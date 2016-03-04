@@ -1,14 +1,16 @@
 package com.ajibigad.corperwee.controller;
 
+import com.ajibigad.corperwee.exceptions.Error;
+import com.ajibigad.corperwee.exceptions.ResourceNotFoundException;
 import com.ajibigad.corperwee.exceptions.UnAuthorizedException;
 import com.ajibigad.corperwee.exceptions.UserExistAlready;
-import com.ajibigad.corperwee.exceptions.UserNotFoundException;
+import com.ajibigad.corperwee.model.Review;
 import com.ajibigad.corperwee.model.User;
+import com.ajibigad.corperwee.repository.ReviewRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import com.ajibigad.corperwee.exceptions.Error;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
@@ -24,6 +26,9 @@ public class UserController {
 
     @Autowired
     UserRepository repository;
+
+    @Autowired
+    ReviewRepository reviewRepository;
 
     @RequestMapping("/all")
     public List<User> getAllUsers(){
@@ -61,18 +66,19 @@ public class UserController {
     public User getUserByUsername(@PathVariable String username, HttpServletRequest request){
         User user = repository.findByUsername(username);
         if(user == null){
-            throw new UserNotFoundException(0, username);
+            throw new ResourceNotFoundException("User with username : [" + username + "] not found");
         }
         return user;
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Error userNotFound(UserNotFoundException e) {
-        if(e.getUserId() > 0){
-            return new Error(e.getUserId(), "User with id : [" + e.getUserId() + "] not found");
+    @RequestMapping("/reviews/{username}")
+    public List<Review> getReviews(String username) {
+        User user = repository.findByUsername(username);
+        if (user != null) {
+            return reviewRepository.findByUser(user);
+        } else {
+            throw new ResourceNotFoundException("User with id : " + username + "not found");
         }
-        return new Error(e.getUserId(), "User with username : [" + e.getUsername() + "] not found");
     }
 
     @ExceptionHandler(UserExistAlready.class)

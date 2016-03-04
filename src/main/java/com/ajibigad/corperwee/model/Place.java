@@ -1,11 +1,7 @@
 package com.ajibigad.corperwee.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Julius on 23/02/2016.
@@ -31,19 +27,13 @@ public class Place {
     private Date dateAdded;
 
     @ManyToOne(cascade = CascadeType.MERGE)
+    // this is because we add the user at the time of creation in the controller. The user we add already exist in the session so when it trys saving ERROR!!! This would make it just merge and save it
     @JoinColumn(name = "addedBy")
     private User addedBy;
 
     @ManyToOne
     @JoinColumn(name = "category")
     private Category category;
-
-    @ManyToMany()
-    @JoinTable(name="reviews",
-            joinColumns={@JoinColumn(name="place_id")},
-            inverseJoinColumns={@JoinColumn(name="user_id")})
-    @com.fasterxml.jackson.annotation.JsonIgnore
-    private List<User> reviewers = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -139,14 +129,6 @@ public class Place {
 
     public void setDateAdded(Date dateAdded) {
         this.dateAdded = dateAdded;
-    }
-
-    public List<User> getReviewers() {
-        return reviewers;
-    }
-
-    public void setReviewers(List<User> reviewers) {
-        this.reviewers = reviewers;
     }
 
     public String getEmail() {

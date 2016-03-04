@@ -18,4 +18,12 @@ public class ControllerExceptionsAdvice {
         return new Error(0, ex.getLocalizedMessage());
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public
+    @ResponseBody
+    Error handleResourceNotFoundError(ResourceNotFoundException ex) {
+        return new Error(0, ex.getLocalizedMessage());
+    }
+
 }

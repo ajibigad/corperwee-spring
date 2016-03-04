@@ -8,7 +8,6 @@ public class UserExistAlready extends RuntimeException {
     private String username;
 
     public UserExistAlready(String username){
-        //this.userId = userId;
         this.username = username;
     }
 

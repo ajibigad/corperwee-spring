@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,10 +30,6 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "addedBy", fetch = FetchType.LAZY)
     private List<Place> placesAdded;
-
-    @ManyToMany(mappedBy = "reviewers")
-    @JsonIgnore
-    private List<Place> placesReviewed = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -132,13 +127,5 @@ public class User {
 
     public void setPlacesAdded(List<Place> placesAdded) {
         this.placesAdded = placesAdded;
-    }
-
-    public List<Place> getPlacesReviewed() {
-        return placesReviewed;
-    }
-
-    public void setPlacesReviewed(List<Place> placesReviewed) {
-        this.placesReviewed = placesReviewed;
     }
 }

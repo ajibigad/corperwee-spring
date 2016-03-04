@@ -13,7 +13,11 @@ import java.util.List;
  */
 public interface PlaceRepository extends PagingAndSortingRepository<Place, Long> {
 
+    public List<Place> findByStateAndLgaAndTown(String state, String lga, String town);
+
     public Page<Place> findByStateAndLgaAndTown (String state, String lga, String town, Pageable page);
+
+    public List<Place> findByCategoryAndStateAndLgaAndTown(Category category, String state, String lga, String town);
 
     public Page<Place> findByCategoryAndStateAndLgaAndTown (Category category, String state, String lga, String town, Pageable page);
 }
