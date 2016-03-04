@@ -68,7 +68,7 @@ public class PlaceController {
             PageRequest pageRequest = new PageRequest(searchParams.getPageNumber(),
                     searchParams.getPageSize(),
                     Sort.Direction.valueOf(searchParams.getSortingOrder()),
-                    searchParams.getSortingProperty());
+                    "rating"); // this is to ensure we get the best places first
             return repository.findByCategoryAndStateAndLgaAndTown(searchParams.getCategory(), searchParams.getState(), searchParams.getLga(), searchParams.getTown(), pageRequest);
         }
         else{
