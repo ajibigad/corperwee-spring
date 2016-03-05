@@ -1,6 +1,7 @@
 package com.ajibigad.corperwee.controller;
 
 import com.ajibigad.corperwee.exceptions.ResourceNotFoundException;
+import com.ajibigad.corperwee.exceptions.UnAuthorizedException;
 import com.ajibigad.corperwee.model.Place;
 import com.ajibigad.corperwee.model.Review;
 import com.ajibigad.corperwee.model.User;
@@ -35,6 +36,12 @@ public class PlaceController {
     @Autowired
     ReviewRepository reviewRepository;
 
+    private String placeNotFoundMessage = "Place with id : ? not Found";
+
+    private String formPlaceNotFoundMessage(long id){
+        return placeNotFoundMessage.replace("?", String.valueOf(id));
+    }
+
     @RequestMapping(method = RequestMethod.POST)
     public Place addPlace(@RequestBody Place place, Principal principal){;
         User user = userRepository.findByUsername(principal.getName());
@@ -48,7 +55,23 @@ public class PlaceController {
             return repository.findOne(id);
         }
         catch (Exception e){
-            throw new ResourceNotFoundException("Place with id : " + id + " not Found");
+            throw new ResourceNotFoundException(formPlaceNotFoundMessage(id));
+        }
+    }
+
+    @RequestMapping(value = "/{id", method = RequestMethod.PUT)
+    public Place updatePlace(@PathVariable long id, Principal principal){
+        Place place = repository.findOne(id);
+        if(place != null){
+            if (principal.getName().equals(place.getAddedBy().getUsername())){
+                return repository.save(place);
+            }
+            else{
+                throw new UnAuthorizedException();
+            }
+        }
+        else{
+            throw new ResourceNotFoundException(formPlaceNotFoundMessage(id));
         }
     }
 
@@ -79,13 +102,13 @@ public class PlaceController {
         }
     }
 
-    @RequestMapping("/reviews/{placeId}")
+    @RequestMapping("/{placeId}/reviews")
     public List<Review> getReviews(long placeId) {
         Place place = repository.findOne(placeId);
         if (place != null) {
             return reviewRepository.findByPlace(place);
         } else {
-            throw new ResourceNotFoundException("Place with id : " + placeId + "not found");
+            throw new ResourceNotFoundException(formPlaceNotFoundMessage(placeId));
         }
     }
 }

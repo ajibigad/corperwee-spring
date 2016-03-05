@@ -15,7 +15,7 @@ public class ControllerExceptionsAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
     public @ResponseBody Error handleIllegalArgsError(IllegalArgumentException ex) {
-        return new Error(0, ex.getLocalizedMessage());
+        return new Error(HttpStatus.BAD_REQUEST.value(), ex.getLocalizedMessage());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -23,7 +23,13 @@ public class ControllerExceptionsAdvice {
     public
     @ResponseBody
     Error handleResourceNotFoundError(ResourceNotFoundException ex) {
-        return new Error(0, ex.getLocalizedMessage());
+        return new Error(HttpStatus.NOT_FOUND.value(), ex.getLocalizedMessage());
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(UnAuthorizedException.class)
+    public @ResponseBody Error handleUnAuthorizedException(UnAuthorizedException ex){
+        return new Error(HttpStatus.UNAUTHORIZED.value(), ex.getLocalizedMessage());
     }
 
 }

@@ -16,6 +16,7 @@ public class Place {
     private String name;
     private String website;
     private String email;
+    //this needs to be read only, a trigger in mysql would update it
     private int rating;
     private String state;
     private String lga;
@@ -71,9 +72,9 @@ public class Place {
         return rating;
     }
 
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
+//    public void setRating(int rating) {
+//        this.rating = rating;
+//    }
 
     public User getAddedBy() {
         return addedBy;
