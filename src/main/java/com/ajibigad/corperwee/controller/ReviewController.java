@@ -41,7 +41,7 @@ public class ReviewController {
             review.setUser(user);
             return repository.save(review);
         } else {
-            throw new ReviewExistAlready(user.getUsername(), review.getPlace().getName());
+            throw new ReviewExistAlready(review.getPlace().getName());
         }
     }
 

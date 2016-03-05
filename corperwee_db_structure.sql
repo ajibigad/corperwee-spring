@@ -27,7 +27,10 @@ CREATE TABLE `category` (
   `description` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `description` (`description`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+)
+  ENGINE = InnoDB
+  AUTO_INCREMENT = 8
+  DEFAULT CHARSET = latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -43,7 +46,7 @@ CREATE TABLE `place` (
   `website` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `category` int(11) NOT NULL,
-  `rating` tinyint(4) NOT NULL,
+  `rating` TINYINT(1) NOT NULL DEFAULT '0',
   `addedBy` int(11) NOT NULL,
   `state` varchar(50) NOT NULL,
   `lga` varchar(50) NOT NULL,
@@ -56,27 +59,35 @@ CREATE TABLE `place` (
   KEY `FK_category_place` (`category`),
   CONSTRAINT `FK_category_place` FOREIGN KEY (`category`) REFERENCES `category` (`id`),
   CONSTRAINT `FK_user_place_added` FOREIGN KEY (`addedBy`) REFERENCES `user` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+)
+  ENGINE = InnoDB
+  AUTO_INCREMENT = 11
+  DEFAULT CHARSET = latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `reviews`
+-- Table structure for table `review`
 --
 
-DROP TABLE IF EXISTS `reviews`;
+DROP TABLE IF EXISTS `review`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `reviews` (
+CREATE TABLE `review` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `place_id` int(11) NOT NULL,
-  `ratings` tinyint(4) NOT NULL,
-  `review` text,
+  `user`          INT(11)    NOT NULL,
+  `place`         INT(11)    NOT NULL,
+  `rating`        TINYINT(1) NOT NULL,
+  `reviewMessage` TEXT       NOT NULL,
+  `dateAdded`     TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `FK_review_user` (`user_id`),
-  KEY `FK_review_place` (`place_id`),
-  CONSTRAINT `FK_review_place` FOREIGN KEY (`place_id`) REFERENCES `place` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `FK_review_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `FK_review_place` (`place`),
+  KEY `FK_review_user` (`user`),
+  CONSTRAINT `FK_review_place` FOREIGN KEY (`place`) REFERENCES `place` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `FK_review_user` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='to store users ratings and review on a place';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -102,7 +113,10 @@ CREATE TABLE `user` (
   `enabled` tinyint(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+)
+  ENGINE = InnoDB
+  AUTO_INCREMENT = 10
+  DEFAULT CHARSET = latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -114,4 +128,4 @@ CREATE TABLE `user` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-03-03  9:01:38
+-- Dump completed on 2016-03-05 20:21:39

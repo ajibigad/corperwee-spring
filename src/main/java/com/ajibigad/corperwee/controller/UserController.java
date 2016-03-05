@@ -58,7 +58,7 @@ public class UserController {
             return repository.save(user);
         }
         else{
-            throw new UnAuthorizedException(user.getUsername());
+            throw new UnAuthorizedException();
         }
     }
 
