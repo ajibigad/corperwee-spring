@@ -2,8 +2,10 @@ package com.ajibigad.corperwee.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,6 +28,10 @@ public class User {
     private String email;
     private String stateCode;
     private String phoneNumber;
+
+    @Value("#{T(System).currentTimeMillis()}")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateJoined;
 
     @JsonIgnore
     @OneToMany(mappedBy = "addedBy", fetch = FetchType.LAZY)
@@ -127,5 +133,13 @@ public class User {
 
     public void setPlacesAdded(List<Place> placesAdded) {
         this.placesAdded = placesAdded;
+    }
+
+    public Date getDateJoined() {
+        return dateJoined;
+    }
+
+    public void setDateJoined(Date dateJoined) {
+        this.dateJoined = dateJoined;
     }
 }

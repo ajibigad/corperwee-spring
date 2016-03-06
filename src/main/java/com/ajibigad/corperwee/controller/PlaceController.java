@@ -103,7 +103,7 @@ public class PlaceController {
     }
 
     @RequestMapping("/{placeId}/reviews")
-    public List<Review> getReviews(long placeId) {
+    public List<Review> getReviews(@PathVariable long placeId) {
         Place place = repository.findOne(placeId);
         if (place != null) {
             return reviewRepository.findByPlace(place);

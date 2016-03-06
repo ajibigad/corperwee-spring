@@ -37,7 +37,7 @@ public class ReviewController {
     @RequestMapping(method = RequestMethod.POST)
     public Review addReview(@RequestBody Review review, Principal principal) {
         User user = userRepository.findByUsername(principal.getName());
-        if (repository.findByUserAndPlace(user, review.getPlace()) != null) {
+        if (repository.findByUserAndPlace(user, review.getPlace()) == null) {
             review.setUser(user);
             return repository.save(review);
         } else {

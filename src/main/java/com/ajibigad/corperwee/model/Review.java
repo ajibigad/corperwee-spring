@@ -1,5 +1,7 @@
 package com.ajibigad.corperwee.model;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -25,6 +27,7 @@ public class Review {
     private Place place;
 
 
+    @Value("#{T(System).currentTimeMillis()}")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateAdded;
 

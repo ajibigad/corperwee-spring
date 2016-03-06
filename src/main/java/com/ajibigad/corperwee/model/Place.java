@@ -1,5 +1,7 @@
 package com.ajibigad.corperwee.model;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -24,6 +26,7 @@ public class Place {
     private String direction;
     private String phoneNumber;
 
+    @Value("#{T(System).currentTimeMillis()}")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateAdded;
 
