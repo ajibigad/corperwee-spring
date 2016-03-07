@@ -3,6 +3,7 @@ package com.ajibigad.corperwee.config;
 /**
 * Created by Julius on 18/02/2016.
 */
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,8 +11,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 
 import javax.sql.DataSource;
@@ -34,8 +33,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                                 "from user " +
                                 "where username = ?")
                 .authoritiesByUsernameQuery(
-                        "select username, 'ROLE_USER' from user where username=?");
-                //.passwordEncoder(new StandardPasswordEncoder("corperwee"));
+                        "select username, 'ROLE_USER' from user where username=?")
+                .passwordEncoder(new StandardPasswordEncoder("corperwee"));
     }
 
     @Override

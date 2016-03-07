@@ -10,6 +10,7 @@ import com.ajibigad.corperwee.repository.ReviewRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,8 @@ public class UserController {
     @Autowired
     ReviewRepository reviewRepository;
 
+    StandardPasswordEncoder passwordEncoder = new StandardPasswordEncoder("corperwee");
+
     @RequestMapping("/all")
     public List<User> getAllUsers(){
         List<User> users = new ArrayList<User>();
@@ -46,6 +49,7 @@ public class UserController {
             throw new UserExistAlready(newUser.getUsername());
         }
         else{
+            newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
             User user = repository.save(newUser);
             return user;
         }
@@ -71,6 +75,27 @@ public class UserController {
         return user;
     }
 
+    @RequestMapping(value = "/{username}/changePassword", method = RequestMethod.PUT)
+    public User changePassword(@PathVariable String username, @RequestBody PasswordChange passwordChange, Principal principal) {
+        if (username.equals(principal.getName())) {
+            User user = repository.findByUsername(username);
+            String encryptedPassword = passwordEncoder.encode(passwordChange.oldPassword);
+            if (user != null) {
+                if (user.getPassword().equals(encryptedPassword)) {
+                    user.setPassword(passwordEncoder.encode(passwordChange.newPassword));
+                    repository.save(user);
+                    return user;
+                } else {
+                    throw new UnAuthorizedException();
+                }
+            } else {
+                throw new ResourceNotFoundException("User with username : [" + username + "] not found");
+            }
+        } else {
+            throw new UnAuthorizedException();
+        }
+    }
+
     @RequestMapping("/reviews/{username}")
     public List<Review> getReviews(String username) {
         User user = repository.findByUsername(username);
@@ -85,6 +110,11 @@ public class UserController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Error userExistAlready(UserExistAlready e) {
         return new Error(0, "User with username : [" + e.getUsername() + "] already exist");
+    }
+
+    class PasswordChange {
+        public String oldPassword;
+        public String newPassword;
     }
 
 }
