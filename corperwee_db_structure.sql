@@ -61,7 +61,7 @@ CREATE TABLE `place` (
   CONSTRAINT `FK_user_place_added` FOREIGN KEY (`addedBy`) REFERENCES `user` (`id`) ON UPDATE CASCADE
 )
   ENGINE = InnoDB
-  AUTO_INCREMENT = 11
+  AUTO_INCREMENT = 12
   DEFAULT CHARSET = latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -88,8 +88,99 @@ CREATE TABLE `review` (
   CONSTRAINT `FK_review_user` FOREIGN KEY (`user`) REFERENCES `user` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='to store users ratings and review on a place';
+)
+  ENGINE = InnoDB
+  AUTO_INCREMENT = 9
+  DEFAULT CHARSET = latin1
+  COMMENT = 'to store users ratings and review on a place';
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client = @@character_set_client */;
+/*!50003 SET @saved_cs_results = @@character_set_results */;
+/*!50003 SET @saved_col_connection = @@collation_connection */;
+/*!50003 SET character_set_client = utf8mb4 */;
+/*!50003 SET character_set_results = utf8mb4 */;
+/*!50003 SET collation_connection = utf8mb4_general_ci */;
+/*!50003 SET @saved_sql_mode = @@sql_mode */;
+/*!50003 SET sql_mode = '' */;
+DELIMITER ;;
+/*!50003 CREATE */ /*!50017 DEFINER =`root`@`localhost` */ /*!50003 TRIGGER `after_review_insert` AFTER INSERT ON `review` FOR EACH ROW BEGIN
+
+  DECLARE ratings INT DEFAULT 0;
+
+  SELECT AVG(rating)
+  INTO ratings
+  FROM review
+  WHERE place = NEW.place
+  GROUP BY place;
+
+  UPDATE place
+  SET rating = ratings
+  WHERE id = NEW.place;
+
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode = @saved_sql_mode */;
+/*!50003 SET character_set_client = @saved_cs_client */;
+/*!50003 SET character_set_results = @saved_cs_results */;
+/*!50003 SET collation_connection = @saved_col_connection */;
+/*!50003 SET @saved_cs_client = @@character_set_client */;
+/*!50003 SET @saved_cs_results = @@character_set_results */;
+/*!50003 SET @saved_col_connection = @@collation_connection */;
+/*!50003 SET character_set_client = utf8mb4 */;
+/*!50003 SET character_set_results = utf8mb4 */;
+/*!50003 SET collation_connection = utf8mb4_general_ci */;
+/*!50003 SET @saved_sql_mode = @@sql_mode */;
+/*!50003 SET sql_mode = '' */;
+DELIMITER ;;
+/*!50003 CREATE */ /*!50017 DEFINER =`root`@`localhost` */ /*!50003 TRIGGER `after_review_update` AFTER UPDATE ON `review` FOR EACH ROW BEGIN
+
+  DECLARE ratings INT DEFAULT 0;
+
+  SELECT AVG(rating)
+  INTO ratings
+  FROM review
+  WHERE place = NEW.place
+  GROUP BY place;
+
+  UPDATE place
+  SET rating = ratings
+  WHERE id = NEW.place;
+
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode = @saved_sql_mode */;
+/*!50003 SET character_set_client = @saved_cs_client */;
+/*!50003 SET character_set_results = @saved_cs_results */;
+/*!50003 SET collation_connection = @saved_col_connection */;
+/*!50003 SET @saved_cs_client = @@character_set_client */;
+/*!50003 SET @saved_cs_results = @@character_set_results */;
+/*!50003 SET @saved_col_connection = @@collation_connection */;
+/*!50003 SET character_set_client = utf8mb4 */;
+/*!50003 SET character_set_results = utf8mb4 */;
+/*!50003 SET collation_connection = utf8mb4_general_ci */;
+/*!50003 SET @saved_sql_mode = @@sql_mode */;
+/*!50003 SET sql_mode = '' */;
+DELIMITER ;;
+/*!50003 CREATE */ /*!50017 DEFINER =`root`@`localhost` */ /*!50003 TRIGGER `after_review_delete` AFTER DELETE ON `review` FOR EACH ROW BEGIN
+
+  DECLARE ratings INT DEFAULT 0;
+
+  SELECT AVG(rating)
+  INTO ratings
+  FROM review
+  WHERE place = OLD.place
+  GROUP BY place;
+
+  UPDATE place
+  SET rating = ratings
+  WHERE id = OLD.place;
+
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode = @saved_sql_mode */;
+/*!50003 SET character_set_client = @saved_cs_client */;
+/*!50003 SET character_set_results = @saved_cs_results */;
+/*!50003 SET collation_connection = @saved_col_connection */;
 
 --
 -- Table structure for table `user`
@@ -111,6 +202,7 @@ CREATE TABLE `user` (
   `stateCode` char(11) NOT NULL,
   `phoneNumber` char(11) NOT NULL,
   `enabled` tinyint(4) NOT NULL DEFAULT '1',
+  `dateJoined` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
 )
@@ -128,4 +220,4 @@ CREATE TABLE `user` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-03-05 20:21:39
+-- Dump completed on 2016-03-07  1:05:30
