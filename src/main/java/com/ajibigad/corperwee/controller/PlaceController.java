@@ -67,9 +67,6 @@ public class PlaceController {
             //the next step is to verify that the person trying to change this place
             //is actually the addedBy of the place and also the logged in user
             User oldAddedBy = oldPlace.getAddedBy();
-            //User newPlaceAddedBy = newPlace.getAddedBy();
-            //these are the three things we need to check to really confirm that the person has the full authority to perform this update
-            //boolean authenticated = oldAddedBy.getId() == newPlaceAddedBy.getId() && oldAddedBy.getUsername().equals(newPlaceAddedBy.getUsername()) && principal.getName().equals(newPlaceAddedBy.getUsername());
             boolean authenticated = principal.getName().equals(oldPlace.getAddedBy().getUsername());
             if (authenticated) {
                 try {
