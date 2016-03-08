@@ -11,7 +11,7 @@ import com.ajibigad.corperwee.repository.ReviewRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.StandardPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +32,10 @@ public class UserController {
     @Autowired
     ReviewRepository reviewRepository;
 
-    StandardPasswordEncoder passwordEncoder = new StandardPasswordEncoder("corperwee");
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    //StandardPasswordEncoder passwordEncoder = new StandardPasswordEncoder("corperwee");
 
     @RequestMapping("/all")
     public List<User> getAllUsers(){
@@ -80,15 +83,17 @@ public class UserController {
     public User changePassword(@PathVariable String username, @RequestBody PasswordChange passwordChange, Principal principal) {
         if (username.equals(principal.getName())) {
             User user = repository.findByUsername(username);
-            String encryptedPassword = passwordEncoder.encode(passwordChange.getOldPassword());
+            //BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            String existingPassword = passwordChange.getOldPassword(); // Password entered by user
+            String dbPassword = user.getPassword(); // Load hashed DB password
             if (user != null) {
-                System.out.println(encryptedPassword);
-                System.out.println(user.getPassword());
-                if (user.getPassword().equals(encryptedPassword)) {
+                if (passwordEncoder.matches(existingPassword, dbPassword)) {
+                    // Encode new password and store it
                     user.setPassword(passwordEncoder.encode(passwordChange.getNewPassword()));
                     repository.save(user);
                     return user;
                 } else {
+                    // Report error
                     throw new UnAuthorizedException();
                 }
             } else {
