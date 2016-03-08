@@ -31,8 +31,9 @@ public class Place {
     private Date dateAdded;
 
     @ManyToOne(cascade = CascadeType.MERGE)
-    // this is because we add the user at the time of creation in the controller. The user we add already exist in the session so when it trys saving ERROR!!! This would make it just merge and save it
+    // this is because we add the user at the time of creation in the controller. The user we add is detached from the session so when it trys saving --> ERROR!!! This would make it just merge and save it
     @JoinColumn(name = "addedBy")
+    //@JsonIgnore we need to know who added this place
     private User addedBy;
 
     @ManyToOne

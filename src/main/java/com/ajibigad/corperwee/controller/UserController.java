@@ -6,6 +6,7 @@ import com.ajibigad.corperwee.exceptions.UnAuthorizedException;
 import com.ajibigad.corperwee.exceptions.UserExistAlready;
 import com.ajibigad.corperwee.model.Review;
 import com.ajibigad.corperwee.model.User;
+import com.ajibigad.corperwee.model.apiModels.PasswordChange;
 import com.ajibigad.corperwee.repository.ReviewRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,10 +80,12 @@ public class UserController {
     public User changePassword(@PathVariable String username, @RequestBody PasswordChange passwordChange, Principal principal) {
         if (username.equals(principal.getName())) {
             User user = repository.findByUsername(username);
-            String encryptedPassword = passwordEncoder.encode(passwordChange.oldPassword);
+            String encryptedPassword = passwordEncoder.encode(passwordChange.getOldPassword());
             if (user != null) {
+                System.out.println(encryptedPassword);
+                System.out.println(user.getPassword());
                 if (user.getPassword().equals(encryptedPassword)) {
-                    user.setPassword(passwordEncoder.encode(passwordChange.newPassword));
+                    user.setPassword(passwordEncoder.encode(passwordChange.getNewPassword()));
                     repository.save(user);
                     return user;
                 } else {
@@ -111,10 +114,4 @@ public class UserController {
     public Error userExistAlready(UserExistAlready e) {
         return new Error(0, "User with username : [" + e.getUsername() + "] already exist");
     }
-
-    class PasswordChange {
-        public String oldPassword;
-        public String newPassword;
-    }
-
 }

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -59,19 +60,32 @@ public class PlaceController {
         }
     }
 
-    @RequestMapping(value = "/{id", method = RequestMethod.PUT)
-    public Place updatePlace(@PathVariable long id, Principal principal){
-        Place place = repository.findOne(id);
-        if(place != null){
-            if (principal.getName().equals(place.getAddedBy().getUsername())){
-                return repository.save(place);
+    @RequestMapping(method = RequestMethod.PUT)
+    public Place updatePlace(@RequestBody Place newPlace, Principal principal) {
+        Place oldPlace = repository.findOne(newPlace.getId());
+        if (oldPlace != null) {
+            //the next step is to verify that the person trying to change this place
+            //is actually the addedBy of the place and also the logged in user
+            User oldAddedBy = oldPlace.getAddedBy();
+            //User newPlaceAddedBy = newPlace.getAddedBy();
+            //these are the three things we need to check to really confirm that the person has the full authority to perform this update
+            //boolean authenticated = oldAddedBy.getId() == newPlaceAddedBy.getId() && oldAddedBy.getUsername().equals(newPlaceAddedBy.getUsername()) && principal.getName().equals(newPlaceAddedBy.getUsername());
+            boolean authenticated = principal.getName().equals(oldPlace.getAddedBy().getUsername());
+            if (authenticated) {
+                try {
+                    newPlace.setAddedBy(oldAddedBy);
+                    return repository.save(newPlace);
+                } catch (JpaObjectRetrievalFailureException ex) {
+                    String modelNotfound = ex.getLocalizedMessage().substring(ex.getLocalizedMessage().indexOf("corperwee.model.") + "corperwee.model.".length(), ex.getLocalizedMessage().indexOf(";"));
+                    throw new ResourceNotFoundException(modelNotfound + " not found");
+                }
             }
             else{
                 throw new UnAuthorizedException();
             }
         }
         else{
-            throw new ResourceNotFoundException(formPlaceNotFoundMessage(id));
+            throw new ResourceNotFoundException(formPlaceNotFoundMessage(newPlace.getId()));
         }
     }
 
