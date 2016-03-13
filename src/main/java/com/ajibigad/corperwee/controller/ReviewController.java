@@ -15,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -62,9 +62,7 @@ public class ReviewController {
     public Review getReviewByUserAndPlace(@RequestParam String username, @RequestParam long placeId) {
         Place place = placeRepository.findOne(placeId);
         User user = userRepository.findByUsername(username);
-        List<Object> assertNotNull = new ArrayList<>();
-        assertNotNull.add(place);
-        assertNotNull.add(user);
+        List<Object> assertNotNull = Arrays.asList(place, user);
         if (SomeUtils.isAllNotNull(assertNotNull)) {
             return repository.findByUserAndPlace(user, place);
         } else {

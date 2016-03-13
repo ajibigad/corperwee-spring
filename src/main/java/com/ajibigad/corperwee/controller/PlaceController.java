@@ -18,7 +18,7 @@ import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -93,13 +93,7 @@ public class PlaceController {
     * Dry abegi*/
     @RequestMapping(value = "town/paged", method = RequestMethod.POST)
     public Page<Place> getPagedPlacesByTown(@RequestBody SearchParams searchParams){
-        List<Object> searchParamsAttrs = new ArrayList<Object>()
-        {{
-                add(searchParams.getCategory());
-                add(searchParams.getState());
-                add(searchParams.getLga());
-                add(searchParams.getTown());
-            }};
+        List<Object> searchParamsAttrs = Arrays.asList(searchParams.getCategory(), searchParams.getState(), searchParams.getLga(), searchParams.getTown());
 
         if(SomeUtils.isAllNotNull(searchParamsAttrs)){
             PageRequest pageRequest = new PageRequest(searchParams.getPageNumber(),
