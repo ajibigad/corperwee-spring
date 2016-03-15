@@ -7,9 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by Julius on 01/03/2016.
  */
@@ -21,11 +18,7 @@ public class CategoryController {
     CategoryRepository repository;
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<Category> getCategories(){
-        List<Category> catogories = new ArrayList<Category>();
-        for (Category category : repository.findAll()){
-            catogories.add(category);
-        }
-        return catogories;
+    public Iterable<Category> getCategories() {
+        return repository.findAll();
     }
 }

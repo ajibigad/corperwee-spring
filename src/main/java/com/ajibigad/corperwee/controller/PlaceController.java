@@ -11,6 +11,7 @@ import com.ajibigad.corperwee.repository.ReviewRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
 import com.ajibigad.corperwee.utils.SomeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -107,6 +108,11 @@ public class PlaceController {
         }
     }
 
+    @RequestMapping(method = RequestMethod.GET)
+    public Iterable<Place> getPlaces() {
+        return repository.findAll();
+    }
+
     @RequestMapping("/{placeId}/reviews")
     public List<Review> getReviews(@PathVariable long placeId) {
         Place place = repository.findOne(placeId);
@@ -115,5 +121,15 @@ public class PlaceController {
         } else {
             throw new ResourceNotFoundException(formPlaceNotFoundMessage(placeId));
         }
+    }
+
+    @RequestMapping("/searchPlacesByName/paged/{searchQuery}")
+    public Page<Place> findPlacesByName(@PathVariable String searchQuery, @Value("0") int page) {
+        return repository.findByNameContaining(searchQuery, new PageRequest(page, 10));
+    }
+
+    @RequestMapping("/searchPlacesByName/{searchQuery}")
+    public List<Place> findPlacesByName(@PathVariable String searchQuery) {
+        return repository.findByNameContaining(searchQuery);
     }
 }

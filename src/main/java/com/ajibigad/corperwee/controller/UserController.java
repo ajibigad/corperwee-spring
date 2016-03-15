@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,12 +37,8 @@ public class UserController {
     //StandardPasswordEncoder passwordEncoder = new StandardPasswordEncoder("corperwee");
 
     @RequestMapping("/all")
-    public List<User> getAllUsers(){
-        List<User> users = new ArrayList<User>();
-        for (User user : repository.findAll()){
-            users.add(user);
-        }
-        return users;
+    public Iterable<User> getAllUsers() {
+        return repository.findAll();
     }
 
     @RequestMapping(method = RequestMethod.POST)

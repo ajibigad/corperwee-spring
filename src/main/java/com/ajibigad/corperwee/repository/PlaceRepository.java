@@ -20,4 +20,8 @@ public interface PlaceRepository extends PagingAndSortingRepository<Place, Long>
     public List<Place> findByCategoryAndStateAndLgaAndTown(Category category, String state, String lga, String town);
 
     public Page<Place> findByCategoryAndStateAndLgaAndTown (Category category, String state, String lga, String town, Pageable page);
+
+    public List<Place> findByNameContaining(String name);
+
+    public Page<Place> findByNameContaining(String name, Pageable page);
 }
