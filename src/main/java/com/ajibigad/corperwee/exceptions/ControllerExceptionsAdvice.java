@@ -26,7 +26,7 @@ public class ControllerExceptionsAdvice {
         return new Error(HttpStatus.NOT_FOUND.value(), ex.getLocalizedMessage());
     }
 
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(HttpStatus.FORBIDDEN) //this should be 403 not 401
     @ExceptionHandler(UnAuthorizedException.class)
     public @ResponseBody Error handleUnAuthorizedException(UnAuthorizedException ex){
         return new Error(HttpStatus.UNAUTHORIZED.value(), ex.getLocalizedMessage());
