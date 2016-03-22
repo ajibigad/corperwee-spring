@@ -43,6 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
+                .antMatchers("/corperwee/api/user/resetPassword", "/corperwee/api/user/changePassword").anonymous()
                     .antMatchers(HttpMethod.POST, "/corperwee/api/user").permitAll()
                     .antMatchers(HttpMethod.GET, "/corperwee/api/category").permitAll()
                     .antMatchers("/corperwee/api/logout").permitAll()
