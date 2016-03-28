@@ -10,15 +10,23 @@ import com.ajibigad.corperwee.model.apiModels.PasswordReset;
 import com.ajibigad.corperwee.repository.ReviewRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
 import com.ajibigad.corperwee.service.PasswordResetTokenService;
+import com.ajibigad.corperwee.service.ProfilePictureService;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import sun.misc.BASE64Decoder;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Calendar;
 import java.util.List;
@@ -30,6 +38,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("corperwee/api/user")
 public class UserController {
+
+    private static final Logger LOG = Logger.getLogger(UserController.class);
 
     @Autowired
     UserRepository repository;
@@ -48,6 +58,9 @@ public class UserController {
 
     @Autowired
     JavaMailSender corperWeeMailService;
+
+    @Autowired
+    ProfilePictureService profilePictureService;
 
     //StandardPasswordEncoder passwordEncoder = new StandardPasswordEncoder("corperwee");
 
@@ -87,6 +100,22 @@ public class UserController {
             throw resourceNotFoundFactory(username);
         }
         return user;
+    }
+
+    @RequestMapping(value = "/uploadProfilePicture", method = RequestMethod.POST, produces = "application/json")
+    public String uploadProfilePicture(@RequestBody String imageBase64URI, @RequestParam String type, Principal principal){
+        return profilePictureService.handleImageUpload(imageBase64URI, type, principal.getName());
+    }
+
+    @RequestMapping("/profilePicture/{username}")
+    public HttpEntity<byte[]> getprofilePicture (@PathVariable String username, Principal principal) throws IOException {
+        // send it back to the client
+        if(!username.equals(principal.getName())){
+            throw new UnAuthorizedException();
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.IMAGE_JPEG);
+        return new ResponseEntity<byte[]>(profilePictureService.getImage(username), httpHeaders, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{username}/changePassword", method = RequestMethod.PUT)

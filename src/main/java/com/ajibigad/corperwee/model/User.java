@@ -28,6 +28,7 @@ public class User {
     private String email;
     private String stateCode;
     private String phoneNumber;
+    private String profilePicture;
 
     @Value("#{T(System).currentTimeMillis()}")
     @Temporal(TemporalType.TIMESTAMP)
@@ -36,6 +37,12 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "addedBy", fetch = FetchType.LAZY)
     private List<Place> placesAdded;
+
+    @PrePersist
+    public void prePersist() {
+        if(profilePicture == null) //We set default value in case if the value is not set yet.
+            profilePicture = "default.jpeg";
+    }
 
     public long getId() {
         return id;
@@ -141,5 +148,13 @@ public class User {
 
     public void setDateJoined(Date dateJoined) {
         this.dateJoined = dateJoined;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
