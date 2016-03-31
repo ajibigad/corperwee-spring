@@ -108,11 +108,12 @@ public class UserController {
     }
 
     @RequestMapping("/profilePicture/{username}")
-    public HttpEntity<byte[]> getprofilePicture (@PathVariable String username, Principal principal) throws IOException {
+    public HttpEntity<byte[]> getProfilePicture (@PathVariable String username, Principal principal) throws IOException {
         // send it back to the client
-        if(!username.equals(principal.getName())){
-            throw new UnAuthorizedException();
-        }
+        // i think anybody should be able to see your profile picture so this api would be opened to all
+//        if(!username.equals(principal.getName())){
+//            throw new UnAuthorizedException();
+//        }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.IMAGE_JPEG);
         return new ResponseEntity<byte[]>(profilePictureService.getImage(username), httpHeaders, HttpStatus.OK);
@@ -133,12 +134,15 @@ public class UserController {
                     return user;
                 } else {
                     // Report error
+                    LOG.error(username + " is not authorized because wrong old password was sent");
                     throw new UnAuthorizedException();
                 }
             } else {
+                LOG.error(username + " not found");
                 throw resourceNotFoundFactory(username);
             }
         } else {
+            LOG.error(username + " is not equal to " + principal.getName() + " therefore not authorized");
             throw new UnAuthorizedException();
         }
     }

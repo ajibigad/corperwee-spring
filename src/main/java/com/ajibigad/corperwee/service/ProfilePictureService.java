@@ -1,6 +1,7 @@
 package com.ajibigad.corperwee.service;
 
 import com.ajibigad.corperwee.exceptions.CorperWeeException;
+import com.ajibigad.corperwee.exceptions.ResourceNotFoundException;
 import com.ajibigad.corperwee.model.User;
 import com.ajibigad.corperwee.repository.UserRepository;
 import org.apache.log4j.Logger;
@@ -104,7 +105,12 @@ public class ProfilePictureService {
 //    }
 
     private String getUserProfilePictureName(String username){
-        return userRepository.findByUsername(username).getProfilePicture();
+        User user = userRepository.findByUsername(username);
+        if(user == null){ //this should be handled by a userService.. I now see why a service layer is needed so i would start with the user api first
+            //i deal thing is userService.findByUsername.. the service would handle the exceptions
+            throw new ResourceNotFoundException("Username " + username + " not found!");
+        }
+        return user.getProfilePicture();
     }
 
     public byte[] getImage(String username) throws IOException {

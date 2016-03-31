@@ -24,6 +24,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     DataSource dataSource;
 
+    private final String API_ENDPOINT = "/corperwee/api";
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth)
             throws Exception {
@@ -43,17 +45,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/corperwee/api/user/resetPassword", "/corperwee/api/user/changePassword").anonymous()
-                    .antMatchers(HttpMethod.POST, "/corperwee/api/user").permitAll()
-                    .antMatchers(HttpMethod.GET, "/corperwee/api/category").permitAll()
-                    .antMatchers("/corperwee/api/logout").permitAll()
-                    .anyRequest().authenticated()
+                .antMatchers(API_ENDPOINT + "/user/resetPassword", API_ENDPOINT + "/user/changePassword").anonymous()
+                    .antMatchers(HttpMethod.POST, API_ENDPOINT + "/user ").permitAll()
+                    .antMatchers(HttpMethod.GET, API_ENDPOINT + "/category ").permitAll()
+                    .antMatchers(API_ENDPOINT + "/ logout ", API_ENDPOINT + "/user/profilePicture/*").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .httpBasic().realmName("Corperwee")
                 .and()
                 .logout()
                     .logoutUrl("/signout")
-                    .logoutSuccessUrl("/corperwee/api/logout")
+                    .logoutSuccessUrl(API_ENDPOINT + "/logout")
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID")
                 .and()

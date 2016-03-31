@@ -54,7 +54,7 @@ public class ReviewController {
             review.setReviewMessage(newReview.getReviewMessage());
             return repository.save(review);
         } else {
-            throw new ResourceNotFoundException("Review with id : " + review.getId() + " not found");
+            throw new ResourceNotFoundException("Review with id : " + newReview.getId() + " not found");
         }
     }
 
