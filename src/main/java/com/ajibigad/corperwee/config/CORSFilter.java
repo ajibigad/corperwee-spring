@@ -34,6 +34,10 @@ public class CORSFilter implements Filter {
         if(!"OPTIONS".equalsIgnoreCase(request.getMethod())) {
             chain.doFilter(req, res);
         }
+
+        // TODOs
+        // i can include code here to check if req.getHeader("X-Requested-With").equals("XMLHttpRequest")
+        // this would help prevent csrf attackers from making request using a script tag but i think i would make more sense to apply this on specific endpoints
     }
 
     @Override

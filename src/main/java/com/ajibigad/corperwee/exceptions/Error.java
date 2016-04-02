@@ -1,5 +1,7 @@
 package com.ajibigad.corperwee.exceptions;
 
+import java.util.List;
+
 /**
  * Created by Julius on 23/02/2016.
  */

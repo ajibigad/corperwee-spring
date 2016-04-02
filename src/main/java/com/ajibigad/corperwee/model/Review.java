@@ -1,5 +1,6 @@
 package com.ajibigad.corperwee.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
