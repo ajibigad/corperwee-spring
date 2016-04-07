@@ -11,6 +11,7 @@ import com.ajibigad.corperwee.repository.ReviewRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
 import com.ajibigad.corperwee.service.PasswordResetTokenService;
 import com.ajibigad.corperwee.service.ProfilePictureService;
+import com.ajibigad.corperwee.service.UserService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -39,81 +40,42 @@ import java.util.UUID;
 @RequestMapping("corperwee/api/user")
 public class UserController {
 
-    private static final Logger LOG = Logger.getLogger(UserController.class);
-
     @Autowired
-    UserRepository repository;
-
-    @Autowired
-    ReviewRepository reviewRepository;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-    @Autowired
-    PasswordResetTokenService passwordResetTokenService;
-
-    @Autowired
-    Environment env;
-
-    @Autowired
-    JavaMailSender corperWeeMailService;
+    UserService userService;
 
     @Autowired
     ProfilePictureService profilePictureService;
 
-    //StandardPasswordEncoder passwordEncoder = new StandardPasswordEncoder("corperwee");
-
     @RequestMapping("/all")
     public Iterable<User> getAllUsers() {
-        return repository.findAll();
+        return userService.getAllUsers();
     }
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public User addUser(@RequestBody User newUser){
-        if(repository.findByUsername(newUser.getUsername())!=null){
-            throw new UserExistAlready(newUser.getUsername());
-        }
-        else{
-            newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-            User user = repository.save(newUser);
-            return user;
-        }
+        return userService.addUser(newUser);
     }
 
     @RequestMapping(method = RequestMethod.PUT)
-    public User updateUser(@RequestBody User user, Principal principal){
-        if(principal.getName().equals(user.getUsername())){
-            user.setPassword(repository.findByUsername(principal.getName()).getPassword());
-            return repository.save(user);
-        }
-        else{
-            throw new UnAuthorizedException();
-        }
+    public User updateUser(@RequestBody User user){
+        return userService.updateUser(user);
     }
 
     @RequestMapping(value = "/{username}", method = RequestMethod.GET)
-    public User getUserByUsername(@PathVariable String username, HttpServletRequest request){
-        User user = repository.findByUsername(username);
-        if(user == null){
-            throw resourceNotFoundFactory(username);
-        }
-        return user;
+    public User getUserByUsername(@PathVariable String username){
+        return userService.getUserByUsername(username);
     }
 
-    @RequestMapping(value = "/uploadProfilePicture", method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(value = "/uploadProfilePicture", method = RequestMethod.POST, produces = "text/plain")
     public String uploadProfilePicture(@RequestBody String imageBase64URI, @RequestParam String type, Principal principal){
         return profilePictureService.handleImageUpload(imageBase64URI, type, principal.getName());
     }
 
     @RequestMapping("/profilePicture/{username}")
-    public HttpEntity<byte[]> getProfilePicture (@PathVariable String username, Principal principal) throws IOException {
+    public HttpEntity<byte[]> getProfilePicture (@PathVariable String username) throws IOException {
         // send it back to the client
         // i think anybody should be able to see your profile picture so this api would be opened to all
-//        if(!username.equals(principal.getName())){
-//            throw new UnAuthorizedException();
-//        }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.IMAGE_JPEG);
         return new ResponseEntity<byte[]>(profilePictureService.getImage(username), httpHeaders, HttpStatus.OK);
@@ -248,9 +210,7 @@ public class UserController {
         return principal.equals(username);
     }
 
-    private ResourceNotFoundException resourceNotFoundFactory(String username) {
-        return new ResourceNotFoundException("User with username : " + username + "not found");
-    }
+
 
     private ResourceNotFoundException resourceNotFoundFactory(long userId) {
         return new ResourceNotFoundException("User with user_id : " + userId + " not found");

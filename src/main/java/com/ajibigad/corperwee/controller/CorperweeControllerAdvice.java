@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.util.List;
@@ -66,6 +67,12 @@ public class CorperweeControllerAdvice implements ResponseBodyAdvice<Object> {
         return new Error(HttpStatus.UNAUTHORIZED.value(), ex.getLocalizedMessage());
     }
 
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(HttpClientErrorException.class)
+    public @ResponseBody Error handleHttpClientErrorException(HttpClientErrorException ex){
+        return new Error(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getLocalizedMessage());
+    }
+
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
         return true;
@@ -74,7 +81,7 @@ public class CorperweeControllerAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         boolean success =  body instanceof Error ? false : true;
-        //logger.info(mediaType + " " + MediaType.APPLICATION_JSON);
+        logger.info(mediaType + " " + MediaType.APPLICATION_JSON);
         if(!mediaType.isCompatibleWith(MediaType.APPLICATION_JSON)){ // this for cases where json is not expected eg images, files etc
             return body;
         }

@@ -24,7 +24,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     DataSource dataSource;
 
-    private final String API_ENDPOINT = "/corperwee/api";
+    public final static String API_ENDPOINT = "/corperwee/api";
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth)
@@ -48,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(API_ENDPOINT + "/user/resetPassword", API_ENDPOINT + "/user/changePassword").anonymous()
                     .antMatchers(HttpMethod.POST, API_ENDPOINT + "/user ").permitAll()
                     .antMatchers(HttpMethod.GET, API_ENDPOINT + "/category ").permitAll()
-                    .antMatchers(API_ENDPOINT + "/ logout ", API_ENDPOINT + "/user/profilePicture/*").permitAll()
+                    .antMatchers(API_ENDPOINT + "/ logout ", API_ENDPOINT + "/user/profilePicture/*", API_ENDPOINT + "/state/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic().realmName("Corperwee")
