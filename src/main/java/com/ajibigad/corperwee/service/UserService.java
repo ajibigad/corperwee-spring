@@ -5,14 +5,12 @@ import com.ajibigad.corperwee.model.User;
 import com.ajibigad.corperwee.model.apiModels.PasswordChange;
 import com.ajibigad.corperwee.model.apiModels.PasswordReset;
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * Created by Julius on 07/04/2016.
  */
-@Service
 public interface UserService {
 
     public static final Logger LOG = Logger.getLogger(UserService.class);
@@ -25,9 +23,9 @@ public interface UserService {
 
     public User getUserByUsername(String username);
 
-    public String uploadProfilePicture(String imageBase64URI, String type);
+    // public String uploadProfilePicture(String imageBase64URI, String type);
 
-    //public HttpEntity<byte[]> getProfilePicture (String username
+    // public HttpEntity<byte[]> getProfilePicture (String username
 
     public User changePassword(String username, PasswordChange passwordChange);
 

@@ -1,7 +1,5 @@
 package com.ajibigad.corperwee.exceptions;
 
-import org.springframework.http.HttpStatus;
-
 import java.util.ArrayList;
 import java.util.List;
 

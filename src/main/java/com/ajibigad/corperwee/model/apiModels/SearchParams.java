@@ -1,7 +1,6 @@
 package com.ajibigad.corperwee.model.apiModels;
 
 import com.ajibigad.corperwee.model.Category;
-import org.springframework.data.domain.Sort;
 
 /**
  * Created by Julius on 03/03/2016.
