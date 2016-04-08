@@ -9,6 +9,7 @@ import com.ajibigad.corperwee.model.apiModels.SearchParams;
 import com.ajibigad.corperwee.repository.PlaceRepository;
 import com.ajibigad.corperwee.repository.ReviewRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
+import com.ajibigad.corperwee.service.PlaceService;
 import com.ajibigad.corperwee.utils.SomeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,61 +31,21 @@ import java.util.List;
 public class PlaceController {
 
     @Autowired
-    PlaceRepository repository;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    ReviewRepository reviewRepository;
-
-    private String placeNotFoundMessage = "Place with id : ? not Found";
-
-    private String formPlaceNotFoundMessage(long id){
-        return placeNotFoundMessage.replace("?", String.valueOf(id));
-    }
+    PlaceService placeService;
 
     @RequestMapping(method = RequestMethod.POST)
     public Place addPlace(@RequestBody Place place, Principal principal){;
-        User user = userRepository.findByUsername(principal.getName());
-        place.setAddedBy(user);
-        return repository.save(place);
+        return placeService.addPlace(place);
     }
 
     @RequestMapping("/{id}")
     public Place getPlace(@PathVariable Long id){
-        try {
-            return repository.findOne(id);
-        }
-        catch (Exception e){
-            throw new ResourceNotFoundException(formPlaceNotFoundMessage(id));
-        }
+        return placeService.getPlace(id);
     }
 
     @RequestMapping(method = RequestMethod.PUT)
     public Place updatePlace(@RequestBody Place newPlace, Principal principal) {
-        Place oldPlace = repository.findOne(newPlace.getId());
-        if (oldPlace != null) {
-            //the next step is to verify that the person trying to change this place
-            //is actually the addedBy of the place and also the logged in user
-            User oldAddedBy = oldPlace.getAddedBy();
-            boolean authenticated = principal.getName().equals(oldPlace.getAddedBy().getUsername());
-            if (authenticated) {
-                try {
-                    newPlace.setAddedBy(oldAddedBy);
-                    return repository.save(newPlace);
-                } catch (JpaObjectRetrievalFailureException ex) {
-                    String modelNotfound = ex.getLocalizedMessage().substring(ex.getLocalizedMessage().indexOf("corperwee.model.") + "corperwee.model.".length(), ex.getLocalizedMessage().indexOf(";"));
-                    throw new ResourceNotFoundException(modelNotfound + " not found");
-                }
-            }
-            else{
-                throw new UnAuthorizedException();
-            }
-        }
-        else{
-            throw new ResourceNotFoundException(formPlaceNotFoundMessage(newPlace.getId()));
-        }
+        return placeService.updatePlace(newPlace);
     }
 
     /*
@@ -94,42 +55,26 @@ public class PlaceController {
     * Dry abegi*/
     @RequestMapping(value = "town/paged", method = RequestMethod.POST)
     public Page<Place> getPagedPlacesByTown(@RequestBody SearchParams searchParams){
-        List<Object> searchParamsAttrs = Arrays.asList(searchParams.getCategory(), searchParams.getState(), searchParams.getLga(), searchParams.getTown());
-
-        if(SomeUtils.isAllNotNull(searchParamsAttrs)){
-            PageRequest pageRequest = new PageRequest(searchParams.getPageNumber(),
-                    searchParams.getPageSize(),
-                    Sort.Direction.valueOf(searchParams.getSortingOrder()),
-                    "rating"); // this is to ensure we get the best places first
-            return repository.findByCategoryAndStateAndLgaAndTown(searchParams.getCategory(), searchParams.getState(), searchParams.getLga(), searchParams.getTown(), pageRequest);
-        }
-        else{
-            throw new IllegalArgumentException("BAD ARGUMENT .. One of either state, lga, or town is missing from search param");
-        }
+        return placeService.getPagedPlacesByTown(searchParams);
     }
 
     @RequestMapping(method = RequestMethod.GET)
     public Iterable<Place> getPlaces() {
-        return repository.findAll();
+        return placeService.getPlaces();
     }
 
     @RequestMapping("/{placeId}/reviews")
     public List<Review> getReviews(@PathVariable long placeId) {
-        Place place = repository.findOne(placeId);
-        if (place != null) {
-            return reviewRepository.findByPlace(place);
-        } else {
-            throw new ResourceNotFoundException(formPlaceNotFoundMessage(placeId));
-        }
+        return placeService.getReviews(placeId);
     }
 
     @RequestMapping("/searchPlacesByName/paged/{searchQuery}")
     public Page<Place> findPlacesByName(@PathVariable String searchQuery, @Value("0") int page) {
-        return repository.findByNameContaining(searchQuery, new PageRequest(page, 10));
+        return placeService.findPlacesByName(searchQuery, page);
     }
 
     @RequestMapping("/searchPlacesByName/{searchQuery}")
     public List<Place> findPlacesByName(@PathVariable String searchQuery) {
-        return repository.findByNameContaining(searchQuery);
+        return placeService.findPlacesByName(searchQuery);
     }
 }

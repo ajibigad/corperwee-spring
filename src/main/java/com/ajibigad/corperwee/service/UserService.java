@@ -23,9 +23,7 @@ public interface UserService {
 
     public User getUserByUsername(String username);
 
-    // public String uploadProfilePicture(String imageBase64URI, String type);
-
-    // public HttpEntity<byte[]> getProfilePicture (String username
+    public User findByUsername(String username);
 
     public User changePassword(String username, PasswordChange passwordChange);
 

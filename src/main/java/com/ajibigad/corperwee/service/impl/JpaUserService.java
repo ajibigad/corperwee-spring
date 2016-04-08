@@ -1,4 +1,4 @@
-package com.ajibigad.corperwee.service;
+package com.ajibigad.corperwee.service.impl;
 
 import com.ajibigad.corperwee.exceptions.*;
 import com.ajibigad.corperwee.model.PasswordResetToken;
@@ -8,6 +8,9 @@ import com.ajibigad.corperwee.model.apiModels.PasswordChange;
 import com.ajibigad.corperwee.model.apiModels.PasswordReset;
 import com.ajibigad.corperwee.repository.ReviewRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
+import com.ajibigad.corperwee.service.PasswordResetTokenService;
+import com.ajibigad.corperwee.service.ProfilePictureService;
+import com.ajibigad.corperwee.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
@@ -23,7 +26,7 @@ import java.util.UUID;
  * Created by Julius on 07/04/2016.
  */
 @Service
-public class JpaUserService implements UserService{
+public class JpaUserService implements UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -74,6 +77,15 @@ public class JpaUserService implements UserService{
         User user = userRepository.findByUsername(username);
         if(user == null){
             throw resourceNotFoundFactory(username);
+        }
+        return user;
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        User user = userRepository.findByUsername(username);
+        if(user == null){
+            throw new ResourceNotFoundException("Username " + username + " not found!");
         }
         return user;
     }
