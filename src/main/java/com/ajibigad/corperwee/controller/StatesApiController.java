@@ -3,9 +3,7 @@ package com.ajibigad.corperwee.controller;
 import com.ajibigad.corperwee.model.apiModels.stateApiModels.State;
 import com.ajibigad.corperwee.service.StatesApiService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -37,5 +35,10 @@ public class StatesApiController {
     @RequestMapping("/{stateName}/cities")
     public List fetchStateCities(@PathVariable String stateName){
         return statesApiService.fetchStateCities(stateName);
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public StatesApiService.Model fetchLGA(@RequestParam String lga, @RequestParam String state){
+        return statesApiService.fetchLGA(state, lga);
     }
 }

@@ -12,6 +12,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by Julius on 03/04/2016.
@@ -69,6 +71,14 @@ public class StatesApiService {
                 throw exception;
             }
         }
+    }
+
+    public Model fetchLGA(String state, String lga){
+        Optional<Model> model = fetchStateLGAs(state).stream().filter(l -> l.name.equalsIgnoreCase(lga)).findFirst();
+        if(!model.isPresent()){
+            throw new ResourceNotFoundException("LGA : "+ lga + " not found");
+        }
+        return model.get();
     }
 
     public List<Model> fetchStateCities(String stateName){
