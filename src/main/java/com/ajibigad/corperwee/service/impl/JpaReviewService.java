@@ -5,9 +5,11 @@ import com.ajibigad.corperwee.exceptions.ReviewExistAlready;
 import com.ajibigad.corperwee.model.Place;
 import com.ajibigad.corperwee.model.Review;
 import com.ajibigad.corperwee.model.User;
+import com.ajibigad.corperwee.model.apiModels.Notification;
 import com.ajibigad.corperwee.repository.PlaceRepository;
 import com.ajibigad.corperwee.repository.ReviewRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
+import com.ajibigad.corperwee.service.NotificationService;
 import com.ajibigad.corperwee.service.PlaceService;
 import com.ajibigad.corperwee.service.ReviewService;
 import com.ajibigad.corperwee.service.UserService;
@@ -34,6 +36,9 @@ public class JpaReviewService implements ReviewService {
     @Autowired
     PlaceService placeService;
 
+    @Autowired
+    NotificationService<Review> notificationService;
+
     @Override
     public List<Review> findByPlace(Place place) {
         return reviewRepository.findByPlace(place);
@@ -49,10 +54,15 @@ public class JpaReviewService implements ReviewService {
         return reviewRepository.findByUserAndPlace(user, place);
     }
 
+    // @Notify this annotation should be used to remove the concern of sending notifications of this action
+    // similar to logging the action in an audit trail
     public Review addReview(Review review) {
         User user = userService.findByUsername(getPrincipal());
         if (reviewRepository.findByUserAndPlace(user, review.getPlace()) == null) {
             review.setUser(user);
+            // just temp. This concern must and would be removed
+            String message = user.getUsername() + " just reviewd on a place you added";
+            notificationService.sendToUser(review.getPlace().getAddedBy().getUsername(), Notification.NotificationType.REVIEW, review, message);
             return reviewRepository.save(review);
         } else {
             throw new ReviewExistAlready(review.getPlace().getName());
@@ -65,6 +75,9 @@ public class JpaReviewService implements ReviewService {
         if (review != null) {
             review.setRating(newReview.getRating());
             review.setReviewMessage(newReview.getReviewMessage());
+            // just temp. This concern must and would be removed and replaced with an annotation
+            String message = user.getUsername() + " just updated his/her review on a place you added";
+            notificationService.sendToUser(review.getPlace().getAddedBy().getUsername(), Notification.NotificationType.REVIEW, review, message);
             return reviewRepository.save(review);
         } else {
             throw new ResourceNotFoundException("Review with id : " + newReview.getId() + " not found");

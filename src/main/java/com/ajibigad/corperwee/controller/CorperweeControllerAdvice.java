@@ -89,7 +89,7 @@ public class CorperweeControllerAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        logger.info(mediaType + " " + MediaType.APPLICATION_JSON);
+        //logger.info(mediaType + " " + MediaType.APPLICATION_JSON);
         if(!mediaType.isCompatibleWith(MediaType.APPLICATION_JSON)){ // this for cases where json is not expected eg images, files etc
             return body;
         }
