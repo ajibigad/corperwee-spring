@@ -15,7 +15,8 @@ import org.springframework.stereotype.Component;
 /**
  * Created by Julius on 20/04/2016.
  */
-//@Aspect
+@Component
+@Aspect
 public class NotificationAspect {
 
     @Autowired
@@ -37,10 +38,10 @@ public class NotificationAspect {
 
     @AfterReturning(pointcut = "notificationConcern(notify)", returning="retVal")
     public void performNotification(Object retVal, Notify notify){
-        LOG.info("Entered notification aspect");
+        //LOG.info("Entered notification aspect");
         if(notify.recipient().compareTo(Notify.RECIPIENT.USER) == 0){
             switch (notify.type()){
-                case REVIEW:
+                case REVIEW :
                     Review review = (Review)retVal;
                     String recipient = SecurityContextHolder.getContext().getAuthentication().getName();
                     LOG.info("Sending review notification to "+ recipient);

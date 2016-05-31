@@ -53,7 +53,7 @@ public class PlaceController {
     * I love sending jsons, query params for GET request is boring!!!
     * Imagine me doing ?state=lagos&lga=epe&town=eko
     * Dry abegi*/
-    @RequestMapping(value = "town/paged", method = RequestMethod.POST)
+    @RequestMapping(value = "/town/paged", method = RequestMethod.POST)
     public Page<Place> getPagedPlacesByTown(@RequestBody SearchParams searchParams){
         return placeService.getPagedPlacesByTown(searchParams);
     }

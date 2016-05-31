@@ -1,5 +1,6 @@
 package com.ajibigad.corperwee.service.impl;
 
+import com.ajibigad.corperwee.annotations.Notify;
 import com.ajibigad.corperwee.exceptions.ResourceNotFoundException;
 import com.ajibigad.corperwee.exceptions.ReviewExistAlready;
 import com.ajibigad.corperwee.model.Place;
@@ -36,9 +37,6 @@ public class JpaReviewService implements ReviewService {
     @Autowired
     PlaceService placeService;
 
-    @Autowired
-    NotificationService<Review> notificationService;
-
     @Override
     public List<Review> findByPlace(Place place) {
         return reviewRepository.findByPlace(place);
@@ -56,19 +54,20 @@ public class JpaReviewService implements ReviewService {
 
     // @Notify this annotation should be used to remove the concern of sending notifications of this action
     // similar to logging the action in an audit trail
+    @Notify(type = Notification.NotificationType.REVIEW, message = ADD_REVIEW_MESSAGE , recipient = Notify.RECIPIENT.USER)
     public Review addReview(Review review) {
         User user = userService.findByUsername(getPrincipal());
         if (reviewRepository.findByUserAndPlace(user, review.getPlace()) == null) {
             review.setUser(user);
             // just temp. This concern must and would be removed
-            String message = user.getUsername() + " just reviewd on a place you added";
-            notificationService.sendToUser(review.getPlace().getAddedBy().getUsername(), Notification.NotificationType.REVIEW, review, message);
+            //String message = user.getUsername() + " just reviewed on a place you added";
             return reviewRepository.save(review);
         } else {
             throw new ReviewExistAlready(review.getPlace().getName());
         }
     }
 
+    @Notify(type = Notification.NotificationType.REVIEW, message = UPDATE_REVIEW_MESSAGE, recipient = Notify.RECIPIENT.USER)
     public Review updateReview(Review newReview) {
         User user = userService.findByUsername(getPrincipal());
         Review review = reviewRepository.findOne(newReview.getId());
@@ -76,8 +75,7 @@ public class JpaReviewService implements ReviewService {
             review.setRating(newReview.getRating());
             review.setReviewMessage(newReview.getReviewMessage());
             // just temp. This concern must and would be removed and replaced with an annotation
-            String message = user.getUsername() + " just updated his/her review on a place you added";
-            notificationService.sendToUser(review.getPlace().getAddedBy().getUsername(), Notification.NotificationType.REVIEW, review, message);
+            //String message = user.getUsername() + " just updated his/her review on a place you added";
             return reviewRepository.save(review);
         } else {
             throw new ResourceNotFoundException("Review with id : " + newReview.getId() + " not found");
@@ -95,7 +93,11 @@ public class JpaReviewService implements ReviewService {
         }
     }
 
-    private String getPrincipal(){
+    public String getPrincipal(){
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
+
+    // still need to find a way to add the principal's username to the message
+    public final static String ADD_REVIEW_MESSAGE = " just reviewed on a place you added";
+    public final static String UPDATE_REVIEW_MESSAGE = " just updated his/her review on a place you added";
 }

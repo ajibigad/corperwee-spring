@@ -1,5 +1,6 @@
 package com.ajibigad.corperwee.service;
 
+import com.ajibigad.corperwee.annotations.Notify;
 import com.ajibigad.corperwee.model.Place;
 import com.ajibigad.corperwee.model.Review;
 import com.ajibigad.corperwee.model.User;
