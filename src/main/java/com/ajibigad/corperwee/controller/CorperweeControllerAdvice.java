@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.util.List;
@@ -32,6 +34,8 @@ public class CorperweeControllerAdvice implements ResponseBodyAdvice<Object> {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
     public @ResponseBody Error handleIllegalArgsError(IllegalArgumentException ex) {
+        logger.error(ex.getLocalizedMessage());
+        logger.error("caused by : " + ex.getCause().getLocalizedMessage());
         return new Error(HttpStatus.BAD_REQUEST.value(), ex.getLocalizedMessage());
     }
 
@@ -60,10 +64,22 @@ public class CorperweeControllerAdvice implements ResponseBodyAdvice<Object> {
         return new Error(HttpStatus.NOT_FOUND.value(), ex.getLocalizedMessage());
     }
 
-    @ResponseStatus(HttpStatus.FORBIDDEN) //this should be 403 not 401, means
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AccessDeniedException.class)
+    public @ResponseBody Error handleAccessDeniedException(AccessDeniedException ex){
+        return handleUnAuthorizedException(new UnAuthorizedException());
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(UnAuthorizedException.class)
     public @ResponseBody Error handleUnAuthorizedException(UnAuthorizedException ex){
-        return new Error(HttpStatus.UNAUTHORIZED.value(), ex.getLocalizedMessage());
+        return new Error(HttpStatus.FORBIDDEN.value(), ex.getLocalizedMessage());
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(HttpClientErrorException.class)
+    public @ResponseBody Error handleHttpClientErrorException(HttpClientErrorException ex){
+        return new Error(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getLocalizedMessage());
     }
 
     @Override
@@ -73,11 +89,10 @@ public class CorperweeControllerAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        boolean success =  body instanceof Error ? false : true;
         //logger.info(mediaType + " " + MediaType.APPLICATION_JSON);
         if(!mediaType.isCompatibleWith(MediaType.APPLICATION_JSON)){ // this for cases where json is not expected eg images, files etc
             return body;
         }
-        return body instanceof CorperweeResponseEnvelope ? body : new CorperweeResponseEnvelope(success, body);
+        return body instanceof CorperweeResponseEnvelope ? body : new CorperweeResponseEnvelope(body);
     }
 }

@@ -15,9 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Calendar;
 
 /**
@@ -29,7 +27,7 @@ public class ProfilePictureService {
     * This guy should help save the image to the file system and retrieve it also*/
 
     @Autowired
-    UserRepository userRepository;
+    UserService userService;
 
     public static final String DIRECTORY = "images";
 
@@ -72,9 +70,9 @@ public class ProfilePictureService {
         String imageName = username + Calendar.getInstance().getTimeInMillis() + "." + type;
         ImageIO.write(image, type, new File(new File(savePath), username + Calendar.getInstance().getTimeInMillis() + "." + type));
         LOG.info("Image saving successful");
-        User user = userRepository.findByUsername(username);
+        User user = userService.findByUsername(username);
         user.setProfilePicture(imageName);
-        userRepository.save(user);
+        userService.updateUser(user);
         return imageName;
     }
 
@@ -105,11 +103,7 @@ public class ProfilePictureService {
 //    }
 
     private String getUserProfilePictureName(String username){
-        User user = userRepository.findByUsername(username);
-        if(user == null){ //this should be handled by a userService.. I now see why a service layer is needed so i would start with the user api first
-            //i deal thing is userService.findByUsername.. the service would handle the exceptions
-            throw new ResourceNotFoundException("Username " + username + " not found!");
-        }
+        User user = userService.findByUsername(username);
         return user.getProfilePicture();
     }
 

@@ -9,6 +9,7 @@ import com.ajibigad.corperwee.model.User;
 import com.ajibigad.corperwee.repository.PlaceRepository;
 import com.ajibigad.corperwee.repository.ReviewRepository;
 import com.ajibigad.corperwee.repository.UserRepository;
+import com.ajibigad.corperwee.service.ReviewService;
 import com.ajibigad.corperwee.utils.SomeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,48 +27,21 @@ import java.util.List;
 public class ReviewController {
 
     @Autowired
-    ReviewRepository repository;
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    PlaceRepository placeRepository;
+    ReviewService reviewService;
 
     @RequestMapping(method = RequestMethod.POST)
-    public Review addReview(@RequestBody Review review, Principal principal) {
-        User user = userRepository.findByUsername(principal.getName());
-        if (repository.findByUserAndPlace(user, review.getPlace()) == null) {
-            review.setUser(user);
-            return repository.save(review);
-        } else {
-            throw new ReviewExistAlready(review.getPlace().getName());
-        }
+    public Review addReview(@RequestBody Review review) {
+        return reviewService.addReview(review);
     }
 
     @RequestMapping(method = RequestMethod.PUT)
-    public Review updateReview(@RequestBody Review newReview, Principal principal) {
-        User user = userRepository.findByUsername(principal.getName());
-        Review review = repository.findOne(newReview.getId());
-        if (review != null) {
-            review.setRating(newReview.getRating());
-            review.setReviewMessage(newReview.getReviewMessage());
-            return repository.save(review);
-        } else {
-            throw new ResourceNotFoundException("Review with id : " + newReview.getId() + " not found");
-        }
+    public Review updateReview(@RequestBody Review newReview) {
+        return reviewService.updateReview(newReview);
     }
 
     @RequestMapping(value = "/user/place")
     public Review getReviewByUserAndPlace(@RequestParam String username, @RequestParam long placeId) {
-        Place place = placeRepository.findOne(placeId);
-        User user = userRepository.findByUsername(username);
-        List<Object> assertNotNull = Arrays.asList(place, user);
-        if (SomeUtils.isAllNotNull(assertNotNull)) {
-            return repository.findByUserAndPlace(user, place);
-        } else {
-            throw new IllegalArgumentException("Username and Place must exist");
-        }
+        return reviewService.getReviewByUserAndPlace(username, placeId);
     }
 
     @ExceptionHandler(ReviewExistAlready.class)
