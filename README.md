@@ -8,7 +8,7 @@ List of Technologies used
 3. Maven
 4. Git
 
-Features implemented
+### Features implemented
 1. Image upload
 2. WebSockets for Notifications
 3. Sends Emails 
